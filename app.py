@@ -8,6 +8,8 @@ import structured_metrics
 from backend import Backend, MetricsError
 import thread
 import logging
+import instrument
+from instrument import timer,counter
 
 # contains all errors as key:(title,msg) items.
 # will be used throughout the runtime to track all encountered errors
@@ -32,24 +34,27 @@ logger.debug('app starting')
 backend = Backend(config)
 s_metrics = structured_metrics.StructuredMetrics()
 logger.debug("loading plugins")
+instrument.init_stats()
+
 for e in s_metrics.load_plugins():
     errors['plugin_%s' % e.plugin] = (e.msg, e.underlying_error)
 
-
+@counter
+@timer
 def build_data():
     global metrics
     global targets_all
     global graphs_all
     global last_update
     logger.debug('build_data() start')
-    try:
-        (metrics, targets_all, graphs_all) = backend.update_data(s_metrics)
-        last_update = time.time()
-        logger.debug('build_data() end ok')
-    except MetricsError, e:
-        errors['metrics_file'] = (e.msg, e.underlying_error)
-        logger.error("[%s] %s", e.msg, e.underlying_error)
-        logger.error('build_data() failed')
+    # try:
+    #     (metrics, targets_all, graphs_all) = backend.update_data(s_metrics)
+    #     last_update = time.time()
+    #     logger.debug('build_data() end ok')
+    # except MetricsError, e:
+    #     errors['metrics_file'] = (e.msg, e.underlying_error)
+    #     logger.error("[%s] %s", e.msg, e.underlying_error)
+    #     logger.error('build_data() failed')
 
 thread.start_new_thread(build_data, ())
 
