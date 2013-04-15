@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 import re
+from instrument import timer, counter, timer_for_subclasses, counter_for_subclasses
 """
 Base Plugin class
 """
@@ -155,6 +156,8 @@ class Plugin(object):
         """
         return {}
 
+    @counter_for_subclasses
+    @timer_for_subclasses
     def find_targets(self, metric):
         """
         For given metrics, yield all possible targets according to our pattern

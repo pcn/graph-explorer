@@ -39,22 +39,20 @@ instrument.init_stats()
 for e in s_metrics.load_plugins():
     errors['plugin_%s' % e.plugin] = (e.msg, e.underlying_error)
 
-@counter
-@timer
 def build_data():
     global metrics
     global targets_all
     global graphs_all
     global last_update
     logger.debug('build_data() start')
-    # try:
-    #     (metrics, targets_all, graphs_all) = backend.update_data(s_metrics)
-    #     last_update = time.time()
-    #     logger.debug('build_data() end ok')
-    # except MetricsError, e:
-    #     errors['metrics_file'] = (e.msg, e.underlying_error)
-    #     logger.error("[%s] %s", e.msg, e.underlying_error)
-    #     logger.error('build_data() failed')
+    try:
+        (metrics, targets_all, graphs_all) = backend.update_data(s_metrics)
+        last_update = time.time()
+        logger.debug('build_data() end ok')
+    except MetricsError, e:
+        errors['metrics_file'] = (e.msg, e.underlying_error)
+        logger.error("[%s] %s", e.msg, e.underlying_error)
+        logger.error('build_data() failed')
 
 thread.start_new_thread(build_data, ())
 
